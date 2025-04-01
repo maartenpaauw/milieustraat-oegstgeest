@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Gemeentewerf Oegstgeest</title>
+        <script src="qrcode.min.js"></script>
+    </head>
+    <body>
+        <p>
+            <code id="timestamp"></code>
+        </p>
+        <div id="qrcode"></div>
+
+        <script>
+          function getRoundedDateTime() {
+            const now = new Date();
+            let minutes = now.getMinutes();
+
+            let lowerBound = Math.floor(minutes / 10) * 10;
+            let upperBound = Math.ceil(minutes / 10) * 10;
+
+            if (upperBound === 60) {
+              now.setHours(now.getHours() + 1);
+              now.setMinutes(0, 0, 0);
+            } else {
+              now.setMinutes((minutes - lowerBound < upperBound - minutes) ? lowerBound : upperBound, 0, 0);
+            }
+
+            const year = now.getFullYear();
+            const month = String(now.getMonth() + 1).padStart(2, "0");
+            const day = String(now.getDate()).padStart(2, "0");
+            const hours = String(now.getHours()).padStart(2, "0");
+            const roundedMinutes = String(now.getMinutes()).padStart(2, "0");
+
+            return `${year}-${month}-${day} ${hours}:${roundedMinutes}`;
+          }
+
+          function generateQR() {
+            const roundedDateTime = getRoundedDateTime();
+            const qrText = `T029 ${roundedDateTime}`; // TODO: What is T029? I received another barcode with T049... Could it be the minute of making the reservation?
+
+            document.getElementById("timestamp").innerText = `Generated for: ${qrText}`;
+
+            document.getElementById("qrcode").innerHTML = "";
+
+            new QRCode(document.getElementById("qrcode"), {
+              text: qrText,
+              width: 512,
+              height: 512,
+            });
+          }
+
+          generateQR();
+        </script>
+    </body>
+</html>
