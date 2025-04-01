@@ -7,18 +7,33 @@
         <script src="qrcode.min.js"></script>
     </head>
     <body>
-        <p>
-            <code id="timestamp"></code>
-        </p>
-        <div id="qrcode"></div>
-
+        <section>
+            <div id="qrcode"></div>
+            <p>
+                Generated for: <code id="timestamp"></code>
+            </p>
+        </section>
         <script>
+          function generateQR() {
+            const roundedDateTime = getRoundedDateTime();
+            const tCode = generateRandomTCode();
+            const qrText = `${tCode} ${roundedDateTime}`;
+
+            document.getElementById("timestamp").innerText = qrText;
+
+            new QRCode(document.getElementById("qrcode"), {
+              text: qrText,
+              width: 256,
+              height: 256,
+            });
+          }
+
           function getRoundedDateTime() {
             const now = new Date();
-            let minutes = now.getMinutes();
+            const minutes = now.getMinutes();
 
-            let lowerBound = Math.floor(minutes / 10) * 10;
-            let upperBound = Math.ceil(minutes / 10) * 10;
+            const lowerBound = Math.floor(minutes / 10) * 10;
+            const upperBound = Math.ceil(minutes / 10) * 10;
 
             if (upperBound === 60) {
               now.setHours(now.getHours() + 1);
@@ -36,19 +51,10 @@
             return `${year}-${month}-${day} ${hours}:${roundedMinutes}`;
           }
 
-          function generateQR() {
-            const roundedDateTime = getRoundedDateTime();
-            const qrText = `T029 ${roundedDateTime}`; // TODO: What is T029? I received another barcode with T049... Could it be the minute of making the reservation?
+          function generateRandomTCode() {
+            const random = Math.floor(Math.random() * 59) + 1;
 
-            document.getElementById("timestamp").innerText = `Generated for: ${qrText}`;
-
-            document.getElementById("qrcode").innerHTML = "";
-
-            new QRCode(document.getElementById("qrcode"), {
-              text: qrText,
-              width: 256,
-              height: 256,
-            });
+            return `T${String(random).padStart(3, "0")}`;
           }
 
           generateQR();
